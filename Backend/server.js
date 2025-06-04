@@ -66,12 +66,8 @@ if (fs.existsSync(buildPath) && fs.existsSync(indexPath)) {
   app.use(express.static(buildPath))
   
   // Handle React routing - send all non-API requests to React app
-  app.get('*', (req, res) => {
-    // Don't serve index.html for API routes
-    if (req.path.startsWith('/api/')) {
-      return res.status(404).json({ error: 'API endpoint not found' })
-    }
-    
+  // Use a more specific pattern to avoid path-to-regexp issues
+  app.get(/^(?!\/api).*/, (req, res) => {
     res.sendFile(indexPath, (err) => {
       if (err) {
         console.error('Error serving index.html:', err)
@@ -101,11 +97,8 @@ if (fs.existsSync(buildPath) && fs.existsSync(indexPath)) {
     })
   })
   
-  // Handle undefined routes
-  app.get('*', (req, res) => {
-    if (req.path.startsWith('/api/')) {
-      return res.status(404).json({ error: 'API endpoint not found' })
-    }
+  // Handle undefined routes with regex pattern to avoid path-to-regexp errors
+  app.get(/^(?!\/api).*/, (req, res) => {
     res.status(404).json({ error: 'Frontend not available' })
   })
 }
