@@ -112,7 +112,10 @@ async function handleSignIn(req, res) {
 
         res.cookie('token', token, {
             httpOnly: true,
+<<<<<<< HEAD
             secure: process.env.NODE_ENV === "production",
+=======
+>>>>>>> e7aa2c0a8be5c9973882fa23218f2618e0002694
             sameSite: "Strict",
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
