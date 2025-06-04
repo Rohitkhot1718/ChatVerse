@@ -19,7 +19,9 @@ app.use(express.urlencoded({ extended: true }));
 
 
 app.use(cors({
-  origin: "https://chat-verse-g8iw.onrender.com",
+  origin: ["https://chat-verse-g8iw.onrender.com",
+    "http://localhost:5173"
+  ],
   credentials: true,
 }));
 
