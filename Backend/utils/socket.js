@@ -5,9 +5,14 @@ import express from 'express'
 const app = express()
 const server = http.createServer(app)
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://chat-verse-g8iw.onrender.com"
+];
+
 const io = new Server(server, {
     cors: {
-        origin: 'https://chat-verse-g8iw.onrender.com',
+        origin: allowedOrigins,
     }
 })
 
