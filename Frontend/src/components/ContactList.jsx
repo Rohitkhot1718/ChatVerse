@@ -12,15 +12,18 @@ const ContactList = () => {
   const { fetchFriendStatus } = useFriendRequestStore();
   const selectedUser = useChatStore((state) => state.selectedUser);
 
-  const searchContact = contacts.filter((contact) =>
-    contact.username.toLowerCase().includes(search.toLowerCase())
-  );
+  const searchContact = contacts.filter((contact) => {
+    const username = contact?.contactId?.username || '';
+    return username.toLowerCase().includes(search.toLowerCase());
+  });
 
   useEffect(() => {
     contacts.forEach((contact) => {
-      fetchFriendStatus(contact.contactId._id);
+      if (contact?.contactId?._id) {
+        fetchFriendStatus(contact.contactId._id);
+      }
     });
-  }, [contacts]);
+  }, [contacts, fetchFriendStatus]);
 
   const fetchContacts = async () => {
     try {

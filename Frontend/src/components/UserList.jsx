@@ -7,9 +7,11 @@ const UserList = ({ onTabChange }) => {
   const [search, setSearch] = useState("");
   const selectedUser = useChatStore((state) => state.selectedUser);
 
-  const searchUser = users.filter((user) =>
-    user.username.toLowerCase().includes(search.toLowerCase())
-  );
+  const searchUser = users.filter((user) => {
+    const username = user?.username || "";
+    return username.toLowerCase().includes(search.toLowerCase());
+  });
+
   useEffect(() => {
     fetchUsers();
   }, []);
