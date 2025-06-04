@@ -3,10 +3,11 @@ import { useNavigate } from "react-router";
 import axiosInstance from "../axios/axiosInstance";
 import { toast, Toaster } from "react-hot-toast";
 import { Button } from "../components/Button";
+import useAuthStore from "../store/authStore";
 
 export const VerifyEmailPage = () => {
   const navigate = useNavigate();
-  const user = useSelector((state) => state.auth.user);
+  const user = useAuthStore((state) => state.user);
   const [verificationStatus, setVerificationStatus] = useState("pending");
   const query = new URLSearchParams(window.location.search);
   const token = query.get("token");
