@@ -26,34 +26,28 @@ export const VerifyEmailPage = () => {
 
     const verifyEmail = async () => {
       try {
-        const response = await axiosInstance.post(`/auth/verify-email`, { token });
-
-        if (response.data.user) {
-          useAuthStore.getState().setUser(response.data.user);
-        }
+        const response = await axiosInstance.get(
+          `/auth/verify-email?token=${token}`
+        );
 
         toast.success(response.data.message || "Email verified successfully!");
         setVerificationStatus("success");
-
-        // Redirect after short delay to allow seeing success message
-        setTimeout(() => {
-          navigate("/signin");
-        }, 2000);
       } catch (error) {
-        console.error("Verification error:", error);
-
         if (error.response?.status === 400) {
-          setVerificationStatus("invalid");
-          toast.error("Invalid or expired verification link.");
-        } else {
-          setVerificationStatus("error");
-          toast.error("Verification failed. Please try again.");
+          if (error.response?.data?.token) {
+            setVerificationStatus("invalid");
+            toast.error("Invalid verification link.");
+            return;
+          }
         }
+
+        toast.error(error.response?.data?.message || "Verification failed.");
+        setVerificationStatus("error");
       }
     };
 
     verifyEmail();
-  }, [token, navigate, user]);
+  }, []);
 
   return (
     <div className="flex h-svh items-center justify-center mx-auto bg-[#131313ee] lg:bg-gray-300 sm:bg-gray-300 ">

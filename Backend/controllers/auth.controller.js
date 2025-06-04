@@ -33,7 +33,7 @@ async function handleSignUp(req, res) {
         })
         await user.save()
 
-        const verificationUrl = `https://chat-verse-g8iw.onrender.com/verify-email?token=${verificationToken}`;
+        const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
         const subject = "Verify your email - ChatVerse";
         const html = `
                 <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -81,7 +81,7 @@ async function handleSignIn(req, res) {
                 user.token = verificationToken;
                 await user.save();
 
-                const verificationUrl = `https://chat-verse-g8iw.onrender.com/verify-email?token=${verificationToken}`;
+                const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
                 const subject = "Verify your email - ChatVerse";
                 const html = `
                     <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
