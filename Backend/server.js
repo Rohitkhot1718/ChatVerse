@@ -12,6 +12,7 @@ import { app, server } from './utils/socket.js'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
+import fs from 'fs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -23,12 +24,20 @@ MongoDBConnection()
 app.use(express.json())
 app.use(cookieParser())
 app.use(express.urlencoded({ extended: true }))
+
+// CORS configuration for production and development
+const allowedOrigins = [
+  process.env.FRONTEND_URL, // Your Render app URL
+  "http://localhost:5173",  // Local development
+  "http://localhost:3000"   // Alternative local port
+].filter(Boolean) // Remove undefined values
+
 app.use(cors({
-  origin: ["https://chat-verse-g8iw.onrender.com", "http://localhost:5173"],
+  origin: allowedOrigins,
   credentials: true,
 }))
 
-// API routes MUST come before static file serving and wildcard route
+// API routes - these must come BEFORE static file serving
 app.use('/api/auth', authRouter)
 app.use('/api/messages', messageRouter)
 app.use('/api/contact', contactRouter)
@@ -37,18 +46,71 @@ app.use('/api/chatbot', chatbotRouter)
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() })
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV || 'development'
+  })
 })
 
-// Serve frontend static files
-app.use(express.static(path.join(__dirname, 'client', 'dist')))
+// Serve static files from the React app build
+const buildPath = path.join(__dirname, 'client', 'dist')
+const indexPath = path.join(buildPath, 'index.html')
 
-// Wildcard fallback for React Router - this should be LAST
-// Only catch non-API routes to avoid conflicts
-app.get(/^(?!\/api).*/, (req, res) => {
-  res.sendFile(path.join(__dirname, "client", "dist", "index.html"))
-})
+console.log('Looking for frontend build at:', buildPath)
+
+if (fs.existsSync(buildPath) && fs.existsSync(indexPath)) {
+  console.log('✅ Frontend build found, serving static files')
+  
+  // Serve static files
+  app.use(express.static(buildPath))
+  
+  // Handle React routing - send all non-API requests to React app
+  app.get('*', (req, res) => {
+    // Don't serve index.html for API routes
+    if (req.path.startsWith('/api/')) {
+      return res.status(404).json({ error: 'API endpoint not found' })
+    }
+    
+    res.sendFile(indexPath, (err) => {
+      if (err) {
+        console.error('Error serving index.html:', err)
+        res.status(500).send('Error loading the application')
+      }
+    })
+  })
+} else {
+  console.log('❌ Frontend build not found at:', buildPath)
+  console.log('Available files in current directory:', fs.readdirSync(__dirname))
+  
+  // Fallback route when no frontend build is available
+  app.get('/', (req, res) => {
+    res.json({
+      message: 'ChatVerse API Server',
+      status: 'Running (Backend Only)',
+      note: 'Frontend build not found. Run build process to include frontend.',
+      buildPath: buildPath,
+      endpoints: {
+        health: '/api/health',
+        auth: '/api/auth',
+        messages: '/api/messages',
+        contacts: '/api/contact',
+        friendRequests: '/api/friend-request',
+        chatbot: '/api/chatbot'
+      }
+    })
+  })
+  
+  // Handle undefined routes
+  app.get('*', (req, res) => {
+    if (req.path.startsWith('/api/')) {
+      return res.status(404).json({ error: 'API endpoint not found' })
+    }
+    res.status(404).json({ error: 'Frontend not available' })
+  })
+}
 
 server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`)
+  console.log(`🚀 Server is running on port ${PORT}`)
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`)
 })
