@@ -4,7 +4,7 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "build": "echo 'Building frontend...' && cd ../Frontend && npm install && npm run build && echo 'Moving build files...' && mkdir -p ../Backend/client && cp -r dist ../Backend/client/ && echo 'Build complete!'",
+    "build": "echo 'Building frontend...' && cd ../Frontend && npm ci && npm run build && echo 'Moving build files...' && mkdir -p ../Backend/client && cp -r dist ../Backend/client/ && echo 'Build complete!'",
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
