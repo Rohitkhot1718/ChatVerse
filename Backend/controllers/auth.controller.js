@@ -205,7 +205,7 @@ async function handleForgotPassword(req, res) {
         user.token = verificationToken
         await user.save();
 
-        const verificationUrl = `https://chat-verse-g8iw.onrender.com/reset-password?token=${verificationToken}`;
+        const verificationUrl = `${process.env.FRONTEND_URL}/reset-password?token=${verificationToken}`;
         const subject = "Reset Your Password - ChatVerse";
         const html = `
                 <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: sans-serif; background: #f4f4f4; border-radius: 10px;">

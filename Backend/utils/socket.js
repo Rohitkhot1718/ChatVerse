@@ -7,7 +7,7 @@ const server = http.createServer(app)
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://chat-verse-g8iw.onrender.com"
+  "https://chatverse-g8zt.onrender.com"
 ];
 
 const io = new Server(server, {
