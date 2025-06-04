@@ -4,7 +4,7 @@ let socket;
 
 export const connectSocket = (userId) => {
   if (!socket) {
-    socket = io("https://t2dh4c5x-3001.inc1.devtunnels.ms", {
+    socket = io("https://chatverse-g8zt.onrender.com", {
       query: { userId },
     });
   }
