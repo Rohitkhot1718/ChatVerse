@@ -19,8 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 
 
 app.use(cors({
-  origin: ["https://t2dh4c5x-5173.inc1.devtunnels.ms",
-  ],
+  origin: "https://chat-verse-g8iw.onrender.com",
   credentials: true,
 }));
 

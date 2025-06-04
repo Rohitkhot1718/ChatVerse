@@ -33,7 +33,7 @@ async function handleSignUp(req, res) {
         })
         await user.save()
 
-        const verificationUrl = `http://localhost:5173/verify-email?token=${verificationToken}`;
+        const verificationUrl = `https://chat-verse-g8iw.onrender.com/verify-email?token=${verificationToken}`;
         const subject = "Verify your email - ChatVerse";
         const html = `
                 <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -81,7 +81,7 @@ async function handleSignIn(req, res) {
                 user.token = verificationToken;
                 await user.save();
 
-                const verificationUrl = `http://localhost:5173/verify-email?token=${verificationToken}`;
+                const verificationUrl = `https://chat-verse-g8iw.onrender.com/verify-email?token=${verificationToken}`;
                 const subject = "Verify your email - ChatVerse";
                 const html = `
                     <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -205,7 +205,7 @@ async function handleForgotPassword(req, res) {
         user.token = verificationToken
         await user.save();
 
-        const verificationUrl = `http://localhost:5173/reset-password?token=${verificationToken}`;
+        const verificationUrl = `https://chat-verse-g8iw.onrender.com/reset-password?token=${verificationToken}`;
         const subject = "Reset Your Password - ChatVerse";
         const html = `
                 <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: sans-serif; background: #f4f4f4; border-radius: 10px;">

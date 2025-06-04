@@ -7,7 +7,7 @@ const server = http.createServer(app)
 
 const io = new Server(server, {
     cors: {
-        origin: 'https://t2dh4c5x-5173.inc1.devtunnels.ms',
+        origin: 'https://chat-verse-g8iw.onrender.com',
     }
 })
 
