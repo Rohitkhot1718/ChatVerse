@@ -23,12 +23,14 @@ const FriendRequestList = () => {
     fetchRequests();
   }, [requests]);
 
-  const handleAccept = async (requestId) => {
+  const handleAccept = async (requestId, senderId) => {
     try {
       await axiosInstance.post("/friend-request/accept", { requestId });
       toast.success("Friend request accepted");
       fetchRequests();
-      useFriendRequestStore.getState().setFriendStatus(requestId, "accepted");
+      if (senderId) { // Add check for senderId
+        useFriendRequestStore.getState().setFriendStatus(senderId, "accepted");
+      }
     } catch (err) {
       console.error("Error accepting request", err);
     }
@@ -86,7 +88,7 @@ const FriendRequestList = () => {
               </div>
               <div className="flex gap-2 font-bold">
                 <button
-                  onClick={() => handleAccept(request._id)}
+                  onClick={() => handleAccept(request._id, request.sender._id)}
                   className="bg-[#5ad3b7ce] px-3 py-1 rounded hover:bg-[#5ad3b7ce] cursor-pointer"
                 >
                   ✓

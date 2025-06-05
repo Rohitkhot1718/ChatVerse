@@ -18,12 +18,18 @@ const ContactList = () => {
   });
 
   useEffect(() => {
-    contacts.forEach((contact) => {
-      if (contact?.contactId?._id) {
-        fetchFriendStatus(contact.contactId._id);
-      }
-    });
-  }, [contacts, fetchFriendStatus]);
+    const updateFriendStatuses = async () => {
+        for (const contact of contacts) {
+            if (contact?.contactId?._id) {
+                await fetchFriendStatus(contact.contactId._id);
+            }
+        }
+    };
+
+    if (contacts.length > 0) {
+        updateFriendStatuses();
+    }
+}, [contacts]);
 
   const fetchContacts = async () => {
     try {
