@@ -63,19 +63,19 @@ const FriendRequestList = () => {
               className="flex justify-between items-center hover:bg-zinc-800 hover:rounded-[5px] p-1 m-4 cursor-pointer"
             >
               <div className="flex items-center">
-                {request.profilePic ? (
+                {request.sender.profilePic ? (
                   <img
                     src={request.sender.profilePic}
-                    alt={request.username}
+                    alt={request.sender.username}
                     className="w-10 h-10 rounded-[10px] object-cover"
                   />
                 ) : (
                   <div
                     className={`w-10 h-10 rounded-full text-white flex items-center justify-center font-semibold text-lg uppercase ${getAvatarColor(
-                      request.username
+                      request.sender.username
                     )}`}
                   >
-                    {request.username?.[0]}
+                    {request.sender.username?.[0]}
                   </div>
                 )}
                 <div className="mx-2">
