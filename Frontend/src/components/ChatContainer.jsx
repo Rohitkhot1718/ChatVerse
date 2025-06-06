@@ -36,8 +36,6 @@ const ChatContainer = ({ setShowChat, isLargeScreen }) => {
   const [selectedMsg, setSelectedMsg] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
 
-  console.log(messages);
-
   useEffect(() => {
     socketRef.current = connectSocket(userId);
     socketRef.current.on("newMessage", (newMsg) => {
