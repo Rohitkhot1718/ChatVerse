@@ -6,7 +6,7 @@ import getAvatarColor from "../utils/getAvatarColor";
 const SideBar = ({ activeTab, onTabChange, isLargeScreen, setShowChat }) => {
   const user = useAuthStore((state) => state.user);
   const setSelectedUser = useChatStore((state) => state.setSelectedUser);
-  const unreadMessages = useChatStore((state) => state.unreadMessages);
+  // const unreadMessages = useChatStore((state) => state.unreadMessages);
 
   const handleTabClick = (tab) => {
     onTabChange(tab);
@@ -37,11 +37,11 @@ const SideBar = ({ activeTab, onTabChange, isLargeScreen, setShowChat }) => {
                   : "text-white hover:text-black hover:border-current hover:bg-[#5ad3b7ce]"
               }`}
             ></i>
-            {Object.values(unreadMessages).reduce((a, b) => a + b, 0) > 0 && (
+            {/* {Object.values(unreadMessages).reduce((a, b) => a + b, 0) > 0 && (
               <div className="absolute -top-1 -right-1 bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
                 {Object.values(unreadMessages).reduce((a, b) => a + b, 0)}
               </div>
-            )}
+            )} */}
           </li>
           <li>
             <i

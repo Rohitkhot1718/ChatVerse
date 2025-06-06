@@ -139,7 +139,7 @@ const ChatBotContainer = ({ setShowChat, isLargeScreen, onTabChange }) => {
     setShowEmojiPicker(false);
 
     try {
-      const recentMessages = [...messages.slice(-8), userMessage].map(
+      const recentMessages = [...messages.slice(-20), userMessage].map(
         (msg) => ({
           text: msg.text,
           isBot: msg.isBot,

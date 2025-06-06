@@ -7,6 +7,7 @@ const messageSchema = mongoose.Schema({
     image: { type: String },
     isRead: { type: Boolean, default: false },
     isSilvi: { type: Boolean, default: false },
+    isSilviChat: { type: Boolean, default: false },
     deletedFor: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 },
     { timestamps: true }

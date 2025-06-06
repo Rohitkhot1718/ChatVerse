@@ -84,11 +84,20 @@ async function handleGetMessages(req, res) {
     try {
         const receiverId = req.params.id;
         const senderId = req.user.id;
+        const SILVI_SENDER_ID = "6842b8a6618e1a35636297a1";
 
         const messages = await Message.find({
             $or: [
                 { senderId: senderId, receiverId: receiverId },
-                { senderId: receiverId, receiverId: senderId }
+                { senderId: receiverId, receiverId: senderId },
+                {
+                    senderId: SILVI_SENDER_ID,
+                    $or: [
+                        { receiverId: senderId },
+                        { receiverId: receiverId }
+                    ],
+                    isSilviChat: true
+                }
             ],
             deletedFor: { $ne: senderId }
         }).sort({ createdAt: 1 });
@@ -130,7 +139,7 @@ async function handleSendMessage(req, res) {
             imageUrl = await new Promise((resolve, reject) => {
                 const stream = cloudinary.uploader.upload_stream(
                     { folder: 'Images' },
-                    (err, result) => {  
+                    (err, result) => {
                         if (err) return reject(err);
                         resolve(result.secure_url);
                     }
@@ -140,7 +149,6 @@ async function handleSendMessage(req, res) {
         }
 
         const aiIsPresentInMessage = req.body.text.includes("@Silvi");
-        console.log(aiIsPresentInMessage)
         const currentMessageIsSilviChat = aiIsPresentInMessage;
         const newMessage = new Message({
             senderId,
@@ -149,33 +157,33 @@ async function handleSendMessage(req, res) {
             image: imageUrl,
             isSilviChat: currentMessageIsSilviChat
         });
+
         await newMessage.save();
 
-        console.log(newMessage)
         const receiverSocketId = userSocketMap[receiverId];
         if (receiverSocketId) io.to(receiverSocketId).emit('newMessage', newMessage);
 
         if (aiIsPresentInMessage) {
             const prompt = req.body.text.replace("@silvi", "").trim();
-            console.log(prompt)
             const conversationHistoryFromDB = await Message.find({
                 isSilviChat: true,
                 $or: [
                     { senderId: senderId, receiverId: receiverId },
-                    { senderId: SILVI_SENDER_ID, receiverId: senderId }
+                    { senderId: SILVI_SENDER_ID, receiverId: senderId },
+                    { senderId: SILVI_SENDER_ID, receiverId: senderId },
+                    { senderId: SILVI_SENDER_ID, receiverId: receiverId }
                 ]
             })
-                .sort({ createdAt: 1 })
-                .limit(8)
+                .sort({ createdAt: -1 })
+                .limit(50)
                 .exec();
 
-                console.log(conversationHistoryFromDB)
             const formattedChatHistoryForAI = conversationHistoryFromDB.map(msg => {
                 return {
                     text: msg.text,
                     isBot: msg.isSilvi || (msg.senderId?.toString() === SILVI_SENDER_ID?.toString())
                 };
-            }); 
+            });
 
             formattedChatHistoryForAI.push({
                 text: prompt,
@@ -183,8 +191,8 @@ async function handleSendMessage(req, res) {
             });
 
             console.log(formattedChatHistoryForAI)
+
             const response = await generateResponse(formattedChatHistoryForAI, req.user.username);
-            console.log(response)
             const aiMessage = new Message({
                 senderId: SILVI_SENDER_ID,
                 receiverId: receiverId,
@@ -192,9 +200,11 @@ async function handleSendMessage(req, res) {
                 isSilvi: true,
                 isSilviChat: true
             });
+
             await aiMessage.save();
 
             io.to(receiverSocketId).emit('newMessage', aiMessage);
+            io.to(userSocketMap[senderId]).emit('newMessage', aiMessage);
         }
 
         res.status(200).json(newMessage);

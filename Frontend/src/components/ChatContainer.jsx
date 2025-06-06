@@ -36,14 +36,25 @@ const ChatContainer = ({ setShowChat, isLargeScreen }) => {
   const [selectedMsg, setSelectedMsg] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
 
+  console.log(messages);
+
   useEffect(() => {
     socketRef.current = connectSocket(userId);
     socketRef.current.on("newMessage", (newMsg) => {
-      if (
-        selectedUser &&
-        (selectedUser._id === newMsg.senderId ||
-          selectedUser._id === newMsg.receiverId)
-      ) {
+      const isDirectHumanMessage =
+        (newMsg.senderId === selectedUser._id &&
+          newMsg.receiverId === userId) ||
+        (newMsg.senderId === userId && newMsg.receiverId === selectedUser._id);
+
+      const isRelevantSilviMessage =
+        newMsg.isSilvi &&
+        (newMsg.receiverId === userId ||
+          newMsg.receiverId === selectedUser._id);
+
+      const messageBelongsToCurrentChat =
+        selectedUser && (isDirectHumanMessage || isRelevantSilviMessage);
+
+      if (messageBelongsToCurrentChat) {
         setMessages((prev) => [...prev, newMsg]);
         axiosInstance.put(`messages/read/${newMsg._id}`);
       } else if (newMsg.senderId !== userId) {
