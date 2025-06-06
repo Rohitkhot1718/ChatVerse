@@ -4,8 +4,11 @@ import Silvi from "../assets/Silvi.webp";
 import axiosInstance from "../axios/axiosInstance";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
-import CustomMarkdown from "./CustomMarkdown";
 import useChatStore from "../store/chatStore";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github-dark.css";
 
 const ChatBotContainer = ({ setShowChat, isLargeScreen, onTabChange }) => {
   const scrollRef = useRef(null);
@@ -13,10 +16,49 @@ const ChatBotContainer = ({ setShowChat, isLargeScreen, onTabChange }) => {
   const [messages, setMessages] = useState([]);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const selectedUser = useChatStore((state) => state.selectedUser);
-  const [isTyping, setIsTyping] = useState(false);
   const emojiRef = useRef(null);
   const inputRef = useRef(null);
   const [showClearChatConfirm, setShowClearChatConfirm] = useState(false);
+  const messageRef = useRef(null);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    const codeBlocks = document.querySelectorAll(
+      "pre code[class*='language-']"
+    );
+
+    codeBlocks.forEach((codeBlock) => {
+      const pre = codeBlock.parentElement;
+
+      if (pre.querySelector(".copy-btn")) return;
+
+      const button = document.createElement("button");
+      button.innerHTML = `<i class="ri-clipboard-line"></i>`;
+      button.className =
+        "copy-btn absolute top-2 right-2 text-white  p-1 rounded hover:bg-[#131313] transition text-sm";
+
+      button.onclick = () => {
+        const code = codeBlock.innerText;
+        navigator.clipboard.writeText(code);
+
+        button.innerHTML = `<i class="ri-clipboard-fill"></i>`;
+        setTimeout(() => {
+          button.innerHTML = `<i class="ri-clipboard-line"></i>`;
+        }, 1500);
+      };
+
+      pre.style.position = "relative";
+      pre.appendChild(button);
+    });
+  }, [messages]);
+
+  useEffect(() => {
+    const preCodes = document.querySelectorAll("pre code");
+    preCodes.forEach((code) => {
+      // code.removeAttribute("class");
+      code.classList.remove("hljs");
+    });
+  }, [messages]);
 
   useEffect(() => {
     if (scrollRef.current)
@@ -36,6 +78,15 @@ const ChatBotContainer = ({ setShowChat, isLargeScreen, onTabChange }) => {
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
+
+  const handleCopyRenderedText = () => {
+    if (messageRef.current) {
+      const renderedText = messageRef.current.innerText;
+      navigator.clipboard.writeText(renderedText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
+  };
 
   const handleEmojiSelect = (emoji) => {
     setMessage((prev) => prev + emoji.native);
@@ -88,11 +139,16 @@ const ChatBotContainer = ({ setShowChat, isLargeScreen, onTabChange }) => {
     setShowEmojiPicker(false);
 
     try {
-      setIsTyping(true);
-      const res = await axiosInstance.post("/chatbot/message", {
-        text: message,
-      });
+      const recentMessages = [...messages.slice(-8), userMessage].map(
+        (msg) => ({
+          text: msg.text,
+          isBot: msg.isBot,
+        })
+      );
 
+      const res = await axiosInstance.post("/chatbot/message", {
+        chatHistory: recentMessages,
+      });
       setMessages((prev) => [
         ...prev.filter((msg) => msg._id !== userMessage._id),
         res.data.userMessage,
@@ -101,7 +157,6 @@ const ChatBotContainer = ({ setShowChat, isLargeScreen, onTabChange }) => {
     } catch (error) {
       console.error("Failed to send message:", error);
       setMessages((prev) => prev.filter((msg) => msg._id !== userMessage._id));
-      setIsTyping(false);
     }
   }
 
@@ -188,32 +243,43 @@ const ChatBotContainer = ({ setShowChat, isLargeScreen, onTabChange }) => {
           )}
           <div
             ref={scrollRef}
-            className="flex flex-1 flex-col overflow-y-auto scrollbar-hide py-2 bg-[131313ee]"
+            className="flex flex-1 flex-col overflow-y-auto scrollbar-hide py-2 bg-[131313ee] relative mb-2"
           >
             {messages.map((msg, index) => (
               <div
                 key={index}
                 className={`max-w-[90%] m-2 px-4 py-2 rounded-xl rounded-bl-none shadow
-    ${
-      msg.isBot
-        ? "self-start bg-[#131313] text-white"
-        : "self-end bg-[#5ad3b7ce] text-black"
-    } ${msg.pending ? "opacity-70" : ""}`}
+                ${
+                  msg.isBot
+                    ? "self-start bg-[#131313] text-white"
+                    : "self-end bg-[#5ad3b7ce] text-black mt-8.5"
+                } ${msg.pending ? "opacity-70" : ""}`}
               >
                 {msg.isBot ? (
                   <div className="prose prose-invert prose-sm max-w-none">
-                    <CustomMarkdown
-                      text={msg.text}
-                      msg={msg}
-                      messages={messages}
-                      isTyping={isTyping}
-                      setIsTyping={setIsTyping}
-                    />
+                    <div ref={messageRef} className="markdown-body">
+                      <ReactMarkdown
+                        children={msg.text}
+                        remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeHighlight]}
+                      />
+                    </div>
                   </div>
                 ) : (
                   <div className="whitespace-pre-wrap break-words">
                     {msg.text}
                   </div>
+                )}
+
+                {msg.isBot && (
+                  <button
+                    onClick={handleCopyRenderedText}
+                    className="flex items-center gap-2 text-sm rounded px-2 py-1.5 text-gray-400
+                    hover:text-[#5ad3b7ce] hover:bg-[#131313] cursor-pointer absolute right-20 mt-3"
+                  >
+                    <i className="ri-clipboard-line"></i>
+                    {copied ? "Copied!" : "Copy Response"}
+                  </button>
                 )}
               </div>
             ))}

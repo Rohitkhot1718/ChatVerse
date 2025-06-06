@@ -3,7 +3,7 @@ import { generateResponse } from '../utils/chatbot.js';
 
 export async function handleBotMessage(req, res) {
     try {
-        const { text } = req.body;
+        const { chatHistory } = req.body;
         const userId = req.user.id;
 
         const userMessage = await BotMessage.create({
@@ -12,7 +12,7 @@ export async function handleBotMessage(req, res) {
             isBot: false
         });
 
-        const botResponse = await generateResponse(text, req.user.username);
+        const botResponse = await generateResponse(chatHistory, req.user.username);
         const botMessage = await BotMessage.create({
             userId,
             text: botResponse,

@@ -50,3 +50,102 @@ body{
     transform: translateY(-10px);
   }
 }
+
+.markdown-body {
+  line-height: 1.7;
+  font-size: 16px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #ddd;
+}
+
+.markdown-body p {
+  margin-bottom: 1rem;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3 {
+  margin: 1rem 0 0.5rem;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.markdown-body li {
+  list-style: disc;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-body ol li {
+  list-style: decimal;
+}
+
+
+li code {
+  background-color: #1e1e1e; 
+  color: #00e676;          
+  padding: 3px 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  white-space: pre-wrap;
+  font-weight: normal; 
+}
+
+pre {
+  white-space: pre-wrap;       
+  word-wrap: break-word;       
+  overflow-x: auto;           
+  background-color: #1e1e1e;  
+  padding: 1rem;
+  border-radius: 8px;
+  max-width: 100%;            
+  box-sizing: border-box;
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+  color: #f8f8f2;
+  font-weight: 400;
+  position: relative;
+}
+
+pre code {
+  background-color: transparent;
+  color: inherit;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+  font-family: inherit;
+  white-space: inherit;
+  font-weight: inherit;
+}
+
+pre::-webkit-scrollbar {
+  height: 5px;
+}
+
+pre::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+pre::-webkit-scrollbar-thumb {
+  background-color: rgba(128, 128, 128, 0.4);
+  border-radius: 10px;
+  transition: background-color 0.3s;
+}
+
+pre::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(128, 128, 128, 0.7);
+}
+
+pre {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(128, 128, 128, 0.4) transparent;
+}
+
+.copy-btn {
+  z-index: 10;
+  cursor: pointer;
+}

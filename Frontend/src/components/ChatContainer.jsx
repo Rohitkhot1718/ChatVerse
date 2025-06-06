@@ -30,6 +30,7 @@ const ChatContainer = ({ setShowChat, isLargeScreen }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showClearChatConfirm, setShowClearChatConfirm] = useState(false);
   const [selectedMsg, setSelectedMsg] = useState(null);
+  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     socketRef.current = connectSocket(userId);
@@ -208,6 +209,33 @@ const ChatContainer = ({ setShowChat, isLargeScreen }) => {
       setShowEmojiPicker(false);
     }
   }
+
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setMessage(value);
+    if (value.endsWith("@")) {
+      setShowPopup(true);
+    } else {
+      setShowPopup(false);
+    }
+  };
+
+  const handleMentionClick = () => {
+    const newText = message.replace(/@$/, "@Silvi ");
+    setMessage(newText);
+    setShowPopup(false);
+    inputRef.current.focus();
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!inputRef.current?.contains(e.target)) {
+        setShowPopup(false);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
   const handleClearChatConfirm = () => {
     setShowClearChatConfirm(true);
@@ -456,9 +484,25 @@ const ChatContainer = ({ setShowChat, isLargeScreen }) => {
                       </p>
                     </>
                   )}
+                  {msg.isSilvi && (
+                    <p className="text-xs font-semibold text-green-400 m-1">
+                      Silvi
+                    </p>
+                  )}
                   {msg.text && (
                     <div className="flex items-center gap-2 m-1">
-                      <p className="text-sm pr-12">{msg.text}</p>{" "}
+                      {msg.isSilvi ? (
+                        <div className="markdown-body text-sm pr-12">
+                          <ReactMarkdown
+                            children={msg.text}
+                            remarkPlugins={[remarkGfm]}
+                            rehypePlugins={[rehypeHighlight]}
+                          />
+                        </div>
+                      ) : (
+                        <p className="text-sm pr-12">{msg.text}</p>
+                      )}
+
                       <p className="flex text-[9px] mt-3 absolute -bottom-1 right-0">
                         {formatTime(msg.createdAt)}
                       </p>
@@ -509,8 +553,8 @@ const ChatContainer = ({ setShowChat, isLargeScreen }) => {
             </div>
           )}
           <div className="bg-[#0d0d0d] p-2" ref={emojiRef}>
-            <div className="bg-zinc-800 p-2 flex items-center gap-2 border rounded-[5px] ">
-              <div className="flex items-center flex-1 gap-2">
+            <div className="bg-zinc-800 p-2 flex items-center gap-2 border rounded-[5px]">
+              <div className="flex items-center flex-1 gap-2 relative">
                 <input
                   type="file"
                   id="fileInput"
@@ -527,10 +571,21 @@ const ChatContainer = ({ setShowChat, isLargeScreen }) => {
                   className="w-full max-h-40 text-white outline-none resize-none scrollbar-hide"
                   placeholder="Type a Message..."
                   value={message}
-                  onChange={(e) => setMessage(e.target.value)}
+                  onChange={handleChange}
                   onKeyDown={handleKeySend}
                   onClick={handleInputClick}
                 />
+
+                {showPopup && (
+                  <div className="absolute bottom-13 left-0 bg-[#363131]  hover:bg-zinc-900 rounded shadow-lg  z-50 p-2">
+                    <button
+                      onClick={handleMentionClick}
+                      className="w-full text-white text-left"
+                    >
+                      Silvi
+                    </button>
+                  </div>
+                )}
               </div>
               <div className="relative">
                 <i

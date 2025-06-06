@@ -4,6 +4,7 @@ import cloudinary from '../utils/cloudinary.js'
 import { io, userSocketMap } from '../utils/socket.js'
 import { Readable } from 'stream';
 import multer from 'multer';
+import { generateResponse } from '../utils/chatbot.js';
 
 const upload = multer({ storage: multer.memoryStorage() });
 const uploadMiddleware = upload.single('image');
@@ -119,9 +120,9 @@ async function handleMessageAsRead(req, res) {
 
 async function handleSendMessage(req, res) {
     try {
-        const receiverId = req.params.id
-        const senderId = req.user.id
-
+        const receiverId = req.params.id;
+        const senderId = req.user.id;
+        const SILVI_SENDER_ID = "silvi_bot";
         let imageUrl;
         if (req.file) {
             const bufferStream = Readable.from(req.file.buffer);
@@ -134,25 +135,68 @@ async function handleSendMessage(req, res) {
                         resolve(result.secure_url);
                     }
                 );
-
                 bufferStream.pipe(stream);
             });
         }
 
+        const aiIsPresentInMessage = req.body.text.includes("@silvi");
+        const currentMessageIsSilviChat = aiIsPresentInMessage;
         const newMessage = new Message({
             senderId,
             receiverId,
             text: req.body.text,
-            image: imageUrl
-        })
-        await newMessage.save()
+            image: imageUrl,
+            isSilviChat: currentMessageIsSilviChat
+        });
+        await newMessage.save();
 
-        const receiverSocketId = userSocketMap[receiverId]
-        if (receiverSocketId) io.to(receiverSocketId).emit('newMessage', newMessage)
-        res.status(200).json(newMessage)
+        const receiverSocketId = userSocketMap[receiverId];
+        if (receiverSocketId) io.to(receiverSocketId).emit('newMessage', newMessage);
+
+        if (aiIsPresentInMessage) {
+            const prompt = req.body.text.replace("@silvi", "").trim();
+
+            const conversationHistoryFromDB = await Message.find({
+                isSilviChat: true,
+                $or: [
+                    { senderId: senderId, receiverId: receiverId },
+                    { senderId: SILVI_SENDER_ID, receiverId: senderId }
+                ]
+            })
+                .sort({ createdAt: 1 })
+                .limit(8)
+                .exec();
+
+            const formattedChatHistoryForAI = conversationHistoryFromDB.map(msg => {
+                return {
+                    text: msg.text,
+                    isBot: msg.isSilvi || (msg.senderId === SILVI_SENDER_ID)
+                };
+            });
+
+            formattedChatHistoryForAI.push({
+                text: prompt,
+                isBot: false
+            });
+
+            const response = await generateResponse(formattedChatHistoryForAI, req.user.username);
+
+            const aiMessage = new Message({
+                senderId: SILVI_SENDER_ID,
+                receiverId: receiverId,
+                text: response,
+                isSilvi: true,
+                isSilviChat: true
+            });
+            await aiMessage.save();
+
+            io.to(receiverSocketId).emit('newMessage', aiMessage);
+        }
+
+        res.status(200).json(newMessage);
     } catch (error) {
         res.status(500).json({ message: "Failed to send message", error: error.message });
-        console.log(error)
+        console.log(error);
     }
 }
 
