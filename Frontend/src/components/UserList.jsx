@@ -6,8 +6,15 @@ const UserList = ({ onTabChange }) => {
   const { users, fetchUsers } = useChatStore();
   const [search, setSearch] = useState("");
   const selectedUser = useChatStore((state) => state.selectedUser);
+  const lastMessages = useChatStore((state) => state.lastMessages);
 
-  const searchUser = users.filter((user) => {
+  const sortedUsers = [...users].sort((a, b) => {
+    const aTime = new Date(lastMessages[a._id]?.createdAt || 0).getTime();
+    const bTime = new Date(lastMessages[b._id]?.createdAt || 0).getTime();
+    return bTime - aTime;
+  });
+
+  const searchUser = sortedUsers.filter((user) => {
     const username = user?.username || "";
     return username.toLowerCase().includes(search.toLowerCase());
   });
