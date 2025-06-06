@@ -122,7 +122,7 @@ async function handleSendMessage(req, res) {
     try {
         const receiverId = req.params.id;
         const senderId = req.user.id;
-        const SILVI_SENDER_ID = "silvi_bot";
+        const SILVI_SENDER_ID = "6842b8a6618e1a35636297a1";
         let imageUrl;
         if (req.file) {
             const bufferStream = Readable.from(req.file.buffer);
@@ -139,7 +139,7 @@ async function handleSendMessage(req, res) {
             });
         }
 
-        const aiIsPresentInMessage = req.body.text.includes("@silvi");
+        const aiIsPresentInMessage = req.body.text.includes("@Silvi");
         const currentMessageIsSilviChat = aiIsPresentInMessage;
         const newMessage = new Message({
             senderId,
@@ -170,9 +170,9 @@ async function handleSendMessage(req, res) {
             const formattedChatHistoryForAI = conversationHistoryFromDB.map(msg => {
                 return {
                     text: msg.text,
-                    isBot: msg.isSilvi || (msg.senderId === SILVI_SENDER_ID)
+                    isBot: msg.isSilvi || (msg.senderId?.toString() === SILVI_SENDER_ID?.toString())
                 };
-            });
+            }); 
 
             formattedChatHistoryForAI.push({
                 text: prompt,
