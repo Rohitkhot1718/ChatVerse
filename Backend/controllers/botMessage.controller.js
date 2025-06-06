@@ -8,16 +8,6 @@ export async function handleBotMessage(req, res) {
         const userId = req.user.id;
 
         const currentUserPromptMessage = chatHistory[chatHistory.length - 1];
-
-        if (
-            !currentUserPromptMessage ||
-            currentUserPromptMessage.isBot ||
-            currentUserPromptMessage.senderId !== userId.toString()
-        ) {
-            console.warn("Invalid or missing current user prompt in chat history.");
-            return res.status(400).json({ message: "Invalid chat history provided." });
-        }
-
         const userMessageText = currentUserPromptMessage.text;
 
         const userMessage = await BotMessage.create({

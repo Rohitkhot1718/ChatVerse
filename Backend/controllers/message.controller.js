@@ -130,7 +130,7 @@ async function handleSendMessage(req, res) {
             imageUrl = await new Promise((resolve, reject) => {
                 const stream = cloudinary.uploader.upload_stream(
                     { folder: 'Images' },
-                    (err, result) => {
+                    (err, result) => {  
                         if (err) return reject(err);
                         resolve(result.secure_url);
                     }
@@ -140,6 +140,7 @@ async function handleSendMessage(req, res) {
         }
 
         const aiIsPresentInMessage = req.body.text.includes("@Silvi");
+        console.log(aiIsPresentInMessage)
         const currentMessageIsSilviChat = aiIsPresentInMessage;
         const newMessage = new Message({
             senderId,
@@ -150,12 +151,13 @@ async function handleSendMessage(req, res) {
         });
         await newMessage.save();
 
+        console.log(newMessage)
         const receiverSocketId = userSocketMap[receiverId];
         if (receiverSocketId) io.to(receiverSocketId).emit('newMessage', newMessage);
 
         if (aiIsPresentInMessage) {
             const prompt = req.body.text.replace("@silvi", "").trim();
-
+            console.log(prompt)
             const conversationHistoryFromDB = await Message.find({
                 isSilviChat: true,
                 $or: [
@@ -167,6 +169,7 @@ async function handleSendMessage(req, res) {
                 .limit(8)
                 .exec();
 
+                console.log(conversationHistoryFromDB)
             const formattedChatHistoryForAI = conversationHistoryFromDB.map(msg => {
                 return {
                     text: msg.text,
@@ -179,8 +182,9 @@ async function handleSendMessage(req, res) {
                 isBot: false
             });
 
+            console.log(formattedChatHistoryForAI)
             const response = await generateResponse(formattedChatHistoryForAI, req.user.username);
-
+            console.log(response)
             const aiMessage = new Message({
                 senderId: SILVI_SENDER_ID,
                 receiverId: receiverId,
