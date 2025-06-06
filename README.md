@@ -77,17 +77,17 @@ npm run dev
 ```
 
 ---
-
 ## 🌐 Usage
 
-➡️ Sign up and log in.
-➕ Go to the Contacts tab and search for a user by username.
-📤 Send a friend request and wait for them to accept.
-💬 Start chatting in real time after the request is accepted.
-🖼️ Click the image icon to send pictures and preview them in the gallery.
-🤖 Type `@silvi` in any chat to trigger a conversation with your AI assistant Silvi.
-👤 Go to Profile to edit your bio and upload a profile picture.
-
+- 📝 **Sign up** or **log in** with your email and password.  
+- 👥 Go to **Contacts** tab to **add friends** using their username.  
+- 🤝 **Send friend requests** and wait for them to accept.  
+- 💬 After acceptance, **start real-time chatting** instantly.  
+- 🖼️ **Send images** and **click to preview** them in a gallery view.  
+- 🤖 Type `@Silvi` in chat to **talk with Silvi AI** inside any conversation.  
+- 🧠 Or chat with **Silvi AI separately** in the special Silvi section.  
+- ✏️ **Edit your profile** anytime — change pic, bio, or username.  
+- 👤 Profile updates are applied across the app instantly.  
 ---
 
 ## 📦 Tech Stack
