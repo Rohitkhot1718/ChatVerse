@@ -20,7 +20,7 @@ const ChatBotContainer = ({ setShowChat, isLargeScreen, onTabChange }) => {
   const inputRef = useRef(null);
   const [showClearChatConfirm, setShowClearChatConfirm] = useState(false);
   const messageRef = useRef(null);
-  const [copied, setCopied] = useState(false);
+  const [copiedId, setCopiedId] = useState(null);
 
   useEffect(() => {
     const codeBlocks = document.querySelectorAll(
@@ -79,14 +79,14 @@ const ChatBotContainer = ({ setShowChat, isLargeScreen, onTabChange }) => {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-  const handleCopyRenderedText = () => {
-    if (messageRef.current) {
-      const renderedText = messageRef.current.innerText;
-      navigator.clipboard.writeText(renderedText);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    }
-  };
+  const handleCopyRenderedText = (id) => {
+  const el = document.getElementById(`msg-${id}`);
+  if (el) {
+    navigator.clipboard.writeText(el.innerText);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 1500);
+  }
+};
 
   const handleEmojiSelect = (emoji) => {
     setMessage((prev) => prev + emoji.native);
@@ -257,7 +257,7 @@ const ChatBotContainer = ({ setShowChat, isLargeScreen, onTabChange }) => {
               >
                 {msg.isBot ? (
                   <div className="prose prose-invert prose-sm max-w-none">
-                    <div ref={messageRef} className="markdown-body">
+<div ref={messageRef} id={`msg-${msg._id}`} className="markdown-body">
                       <ReactMarkdown
                         children={msg.text}
                         remarkPlugins={[remarkGfm]}
@@ -272,17 +272,15 @@ const ChatBotContainer = ({ setShowChat, isLargeScreen, onTabChange }) => {
                 )}
 
                 {msg.isBot && (
-                  <button
-                    onClick={handleCopyRenderedText}
-                    className="flex items-center gap-2 text-sm rounded px-2 py-1.5 text-gray-400
-                    hover:text-[#5ad3b7ce] hover:bg-[#131313] cursor-pointer absolute right-20 mt-3"
-                  >
-                    <i className="ri-clipboard-line"></i>
-                    {copied ? "Copied!" : "Copy Response"}
-                  </button>
-                )}
-              </div>
-            ))}
+  <button
+    onClick={() => handleCopyRenderedText(msg._id)}
+    className="flex items-center gap-2 text-sm rounded px-2 py-1.5 text-gray-400
+    hover:text-[#5ad3b7ce] hover:bg-[#131313] cursor-pointer absolute right-20 mt-3"
+  >
+    <i className="ri-clipboard-line"></i>
+    {copiedId === msg._id ? "Copied!" : "Copy Response"}
+  </button>
+)}
           </div>
 
           <div className="bg-[#0d0d0d] p-2" ref={emojiRef}>
