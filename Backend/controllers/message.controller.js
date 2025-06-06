@@ -190,8 +190,6 @@ async function handleSendMessage(req, res) {
                 isBot: false
             });
 
-            console.log(formattedChatHistoryForAI)
-
             const response = await generateResponse(formattedChatHistoryForAI, req.user.username);
             const aiMessage = new Message({
                 senderId: SILVI_SENDER_ID,
