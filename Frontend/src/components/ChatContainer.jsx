@@ -8,6 +8,10 @@ import data from "@emoji-mart/data";
 import { toast } from "react-hot-toast";
 import getAvatarColor from "../utils/getAvatarColor";
 import ChatVerseLogo from "../assets/chat.svg";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github-dark.css";
 
 const ChatContainer = ({ setShowChat, isLargeScreen }) => {
   const userId = useAuthStore((state) => state.user._id);
