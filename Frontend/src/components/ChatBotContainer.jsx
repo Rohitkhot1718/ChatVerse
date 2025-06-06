@@ -88,7 +88,6 @@ const ChatBotContainer = ({ setShowChat, isLargeScreen, onTabChange }) => {
     }
   };
 
-
   const handleEmojiSelect = (emoji) => {
     setMessage((prev) => prev + emoji.native);
     inputRef.current?.focus();
@@ -228,13 +227,13 @@ const ChatBotContainer = ({ setShowChat, isLargeScreen, onTabChange }) => {
                 <div className="flex justify-end gap-3">
                   <button
                     onClick={() => setShowClearChatConfirm(false)}
-                    className="px-4 py-2 rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 transition-colors"
+                    className="px-4 py-2 rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 transition-colors cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleClearChat}
-                    className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors"
+                    className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors cursor-pointer"
                   >
                     Clear
                   </button>
