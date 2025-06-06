@@ -20,7 +20,7 @@ const ChatBotContainer = ({ setShowChat, isLargeScreen, onTabChange }) => {
   const inputRef = useRef(null);
   const [showClearChatConfirm, setShowClearChatConfirm] = useState(false);
   const messageRef = useRef(null);
- 
+  const [copiedMsgId, setCopiedMsgId] = useState(null);
 
   useEffect(() => {
     const codeBlocks = document.querySelectorAll(
@@ -79,6 +79,14 @@ const ChatBotContainer = ({ setShowChat, isLargeScreen, onTabChange }) => {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
+  const handleCopyRenderedText = (id) => {
+    const el = document.getElementById(`msg-${id}`);
+    if (el) {
+      navigator.clipboard.writeText(el.innerText);
+      setCopiedMsgId(id);
+      setTimeout(() => setCopiedMsgId(null), 1500);
+    }
+  };
 
 
   const handleEmojiSelect = (emoji) => {
@@ -250,6 +258,11 @@ const ChatBotContainer = ({ setShowChat, isLargeScreen, onTabChange }) => {
               >
                 {msg.isBot ? (
                   <div className="prose prose-invert prose-sm max-w-none">
+                    <div
+                      id={`msg-${msg._id}`}
+                      ref={messageRef}
+                      className="markdown-body"
+                    >
                       <ReactMarkdown
                         children={msg.text}
                         remarkPlugins={[remarkGfm]}
@@ -263,6 +276,18 @@ const ChatBotContainer = ({ setShowChat, isLargeScreen, onTabChange }) => {
                   </div>
                 )}
 
+                {msg.isBot && (
+                  <button
+                    onClick={() => handleCopyRenderedText(msg._id)}
+                    className="flex items-center gap-2 text-sm rounded px-2 py-1.5 text-gray-400
+                    hover:text-[#5ad3b7ce] hover:bg-[#131313] cursor-pointer absolute right-20 mt-3"
+                  >
+                    <i className="ri-clipboard-line"></i>
+                    {copiedMsgId === msg._id ? "Copied!" : "Copy Response"}
+                  </button>
+                )}
+              </div>
+            ))}
           </div>
 
           <div className="bg-[#0d0d0d] p-2" ref={emojiRef}>
